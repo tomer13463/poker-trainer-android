@@ -1,0 +1,43 @@
+name: Build Android APK from ZIP
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Unzip project
+        run: |
+          unzip poker_trainer_android_v6.zip -d extracted
+          find extracted -maxdepth 3 -type f | head -50
+
+      - name: Find project folder
+        run: |
+          echo "PROJECT_DIR=$(find extracted -name gradlew -type f -exec dirname {} \; | head -1)" >> $GITHUB_ENV
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Make Gradle executable
+        run: chmod +x "$PROJECT_DIR/gradlew"
+
+      - name: Build debug APK
+        run: |
+          cd "$PROJECT_DIR"
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: poker-trainer-debug-apk
+          path: extracted/**/app/build/outputs/apk/debug/*.apk
