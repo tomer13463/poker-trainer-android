@@ -15,7 +15,7 @@ jobs:
 
       - name: Unzip project
         run: |
-          unzip poker_trainer_android_v6.zip -d extracted
+          unzip poker_trainer_android_v17_final_stability.zip -d extracted
           find extracted -maxdepth 4 -type f | head -80
 
       - name: Find project folder
