@@ -16,11 +16,13 @@ jobs:
       - name: Unzip project
         run: |
           unzip poker_trainer_android_v6.zip -d extracted
-          find extracted -maxdepth 3 -type f | head -50
+          find extracted -maxdepth 4 -type f | head -80
 
       - name: Find project folder
         run: |
-          echo "PROJECT_DIR=$(find extracted -name gradlew -type f -exec dirname {} \; | head -1)" >> $GITHUB_ENV
+          PROJECT_DIR=$(find extracted -name settings.gradle -type f -exec dirname {} \; | head -1)
+          echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
+          echo "Project folder is: $PROJECT_DIR"
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -28,13 +30,15 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Make Gradle executable
-        run: chmod +x "$PROJECT_DIR/gradlew"
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.10.2
 
       - name: Build debug APK
         run: |
           cd "$PROJECT_DIR"
-          ./gradlew assembleDebug
+          gradle assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
